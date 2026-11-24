@@ -26,11 +26,13 @@ async function request(endpoint, options = {}) {
   return data;
 }
 
-export function getBooks(params = {}) {
+export function getBooks(params = {}, options = {}) {
   const query = new URLSearchParams(params).toString();
   const endpoint = query ? `/books?${query}` : "/books";
 
-  return request(endpoint);
+  return request(endpoint, {
+    signal: options.signal
+  });
 }
 
 export function getBook(id) {
