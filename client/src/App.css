@@ -177,3 +177,40 @@ main {
   opacity: 0.6;
   cursor: not-allowed;
 }
+.book-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.book-actions button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #172554;
+  color: white;
+  cursor: pointer;
+}
+
+.book-actions .delete-button {
+  background: #dc2626;
+}
+
+.book-actions button:hover {
+  opacity: 0.85;
+}
+.book-actions button,
+.book-card > button {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #172554;
+  color: white;
+  cursor: pointer;
+}
+
+.book-card > button {
+  margin-top: 10px;
+  width: 100%;
+}
