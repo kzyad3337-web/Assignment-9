@@ -30,7 +30,6 @@ app.get("/api/books", async (req, res) => {
     "genre", "read", "q", "sort", "order", "limit", "page"
   ];
 
-  // Reject unknown query parameters
   const unknownParams = Object.keys(req.query).filter(
     (key) => !allowedParams.includes(key)
   );
@@ -41,7 +40,6 @@ app.get("/api/books", async (req, res) => {
     });
   }
 
-  // Reject duplicate query parameters
   for (const [key, value] of Object.entries(req.query)) {
     if (Array.isArray(value)) {
       return res.status(400).json({
@@ -110,21 +108,18 @@ app.get("/api/books", async (req, res) => {
 
   const books = await getAllBooks();
 
-  // Filter by genre
   let result = [...books];
 
   if (genre) {
     result = result.filter((book) => book.genre === genre);
   }
 
-  // Filter by read status
   if (read !== undefined) {
     result = result.filter(
       (book) => book.read === (read === "true")
     );
   }
 
-  // Search title and author
   if (q) {
     const search = q.trim().toLowerCase();
 
@@ -135,13 +130,11 @@ app.get("/api/books", async (req, res) => {
     );
   }
 
-  // Sort books
   if (sort) {
     result.sort((a, b) => {
       const aValue = a[sort];
       const bValue = b[sort];
 
-      // Keep books without ratings at the end
       if (sort === "rating") {
         if (aValue === null) return 1;
         if (bValue === null) return -1;
@@ -159,7 +152,6 @@ app.get("/api/books", async (req, res) => {
     });
   }
 
-  // Pagination
   const totalBooks = result.length;
   const totalPages = Math.ceil(totalBooks / limitNumber);
   const startIndex = (pageNumber - 1) * limitNumber;
@@ -422,6 +414,26 @@ app.get("/api/stats", async (req, res) => {
     ratedBooks: ratedBooks.length,
     averageRating,
     booksByGenre
+  });
+});
+
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    error: "API endpoint not found"
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  if (err instanceof SyntaxError && err.status === 400) {
+    return res.status(400).json({
+      error: "Invalid JSON format"
+    });
+  }
+
+  res.status(500).json({
+    error: "Internal server error"
   });
 });
 app.listen(PORT, () => {

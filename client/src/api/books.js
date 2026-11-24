@@ -65,7 +65,8 @@ export function deleteBook(id) {
     method: "DELETE",
   });
 }
-
-export function getStats() {
-  return request("/stats");
+export function getStats(options = {}) {
+  return request("/stats", {
+    signal: options.signal
+  });
 }
