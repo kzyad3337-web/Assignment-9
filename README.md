@@ -20,7 +20,7 @@ A full-stack Reading List application built with **Express 5** and **React**. Th
 ## Project Structure
 
 ```text
-Assignment 9/
+Assignment-9/
 ├── server/
 │   ├── server.js
 │   ├── booksStore.js
@@ -59,7 +59,7 @@ Assignment 9/
 
 ```bash
 git clone https://github.com/kzyad3337-web/Assignment-9.git
-cd "Assignment 9"
+cd Assignment-9
 ```
 
 ### 2. Start the Backend
@@ -84,7 +84,7 @@ VITE_API_URL=http://localhost:3000/api
 
 ### 4. Start the Frontend
 
-Open a second terminal:
+Open a second terminal from the project directory:
 
 ```bash
 cd client
@@ -107,6 +107,22 @@ Open the local URL displayed by Vite, usually:
 | PATCH | `/api/books/:id` | Partially update a book |
 | DELETE | `/api/books/:id` | Delete a book |
 | GET | `/api/stats` | Get reading statistics |
+
+### Books Query Parameters
+
+The books endpoint supports:
+
+- `genre`: Filter by genre.
+- `read`: Filter by reading status (`true` or `false`).
+- `q`: Search by title or author.
+- `sort`: Sort by title, author, year, or rating.
+- `order`: Sort direction (`asc` or `desc`).
+- `limit`: Number of books per page.
+- `page`: Page number.
+
+Example:
+
+`GET /api/books?genre=fiction&sort=title&order=asc&page=1&limit=10`
 
 ## Data Storage
 
