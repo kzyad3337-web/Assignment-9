@@ -1,8 +1,7 @@
 
 import { useEffect, useState } from "react";
 import "./App.css";
-import { getBooks, getStats } from "./api/books";
-
+import { getBooks, getStats, createBook } from "./api/books";
 function App() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,8 +18,17 @@ function App() {
 
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
+const [showForm, setShowForm] = useState(false);
+const [saving, setSaving] = useState(false);
 
-  // Load books whenever filters or sorting change
+const [formData, setFormData] = useState({
+  title: "",
+  author: "",
+  year: "",
+  genre: "fiction",
+  read: false,
+  rating: "",
+});
   useEffect(() => {
     const controller = new AbortController();
 
@@ -74,7 +82,55 @@ function App() {
 
     return () => controller.abort();
   }, [search, genre, readFilter, sort, order, page]);
+async function handleAddBook(e) {
+  e.preventDefault();
 
+  try {
+    setSaving(true);
+    setError("");
+
+    const newBook = {
+      ...formData,
+      year: Number(formData.year),
+      rating:
+        formData.read && formData.rating !== ""
+          ? Number(formData.rating)
+          : null,
+    };
+
+    await createBook(newBook);
+
+    setFormData({
+      title: "",
+      author: "",
+      year: "",
+      genre: "fiction",
+      read: false,
+      rating: "",
+    });
+
+    setShowForm(false);
+    setPage(1);
+
+    // Refresh the books and statistics
+    const result = await getBooks({
+      sort,
+      order,
+      page: 1,
+      limit: 4,
+    });
+
+    const statsResult = await getStats();
+
+    setBooks(result.data);
+    setPagination(result.pagination);
+    setStats(statsResult);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setSaving(false);
+  }
+}
   return (
     <div>
       <header>
@@ -84,6 +140,104 @@ function App() {
 
       <main>
         <h2>My Library</h2>
+
+<button
+  type="button"
+  onClick={() => setShowForm(!showForm)}
+>
+  {showForm ? "Cancel" : "+ Add New Book"}
+</button>
+
+{showForm && (
+  <form onSubmit={handleAddBook} className="book-form">
+    <h3>Add New Book</h3>
+
+    <input
+      type="text"
+      placeholder="Book Title"
+      value={formData.title}
+      onChange={(e) =>
+        setFormData({ ...formData, title: e.target.value })
+      }
+      minLength={1}
+      maxLength={100}
+      required
+    />
+
+    <input
+      type="text"
+      placeholder="Author"
+      value={formData.author}
+      onChange={(e) =>
+        setFormData({ ...formData, author: e.target.value })
+      }
+      minLength={1}
+      maxLength={100}
+      required
+    />
+
+    <input
+      type="number"
+      placeholder="Publication Year"
+      value={formData.year}
+      onChange={(e) =>
+        setFormData({ ...formData, year: e.target.value })
+      }
+      min="1000"
+      max={new Date().getFullYear()}
+      required
+    />
+
+    <select
+      value={formData.genre}
+      onChange={(e) =>
+        setFormData({ ...formData, genre: e.target.value })
+      }
+    >
+      <option value="fiction">Fiction</option>
+      <option value="non-fiction">Non-fiction</option>
+      <option value="science">Science</option>
+      <option value="history">History</option>
+      <option value="fantasy">Fantasy</option>
+      <option value="other">Other</option>
+    </select>
+
+    <label>
+      <input
+        type="checkbox"
+        checked={formData.read}
+        onChange={(e) =>
+          setFormData({
+            ...formData,
+            read: e.target.checked,
+            rating: e.target.checked ? formData.rating : "",
+          })
+        }
+      />
+      I have read this book
+    </label>
+
+    {formData.read && (
+      <select
+        value={formData.rating}
+        onChange={(e) =>
+          setFormData({ ...formData, rating: e.target.value })
+        }
+      >
+        <option value="">Choose Rating (Optional)</option>
+        <option value="1">1 Star</option>
+        <option value="2">2 Stars</option>
+        <option value="3">3 Stars</option>
+        <option value="4">4 Stars</option>
+        <option value="5">5 Stars</option>
+      </select>
+    )}
+
+    <button type="submit" disabled={saving}>
+      {saving ? "Adding..." : "Add Book"}
+    </button>
+  </form>
+)}
 
         {/* Search, filters and sorting */}
         <section className="filters">
